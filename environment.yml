@@ -1,0 +1,49 @@
+name: mcm_2025
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # Core Python and Jupyter setup
+  - python>=3.9  # Python version
+  - jupyterlab  # Interactive coding environment
+  - ipykernel   # Kernel for Jupyter Notebook
+
+  # Data manipulation and analysis
+  - pandas      # Data analysis and manipulation
+  - numpy       # Numerical computing
+  - scipy       # Scientific computing
+
+  # Data visualization
+  - matplotlib=3.7.2  # Data visualization library
+  - seaborn     # Statistical data visualization
+  - plotly      # Interactive visualizations
+
+  # Machine Learning and Data Processing
+  - scikit-learn  # Core ML library
+#  - xgboost       # Extreme Gradient Boosting
+#  - lightgbm      # Light Gradient Boosting Machine
+#  - catboost      # Gradient Boosting by Yandex
+  - tensorflow    # Deep learning framework
+  - pytorch       # PyTorch (deep learning framework)
+
+  # Natural Language Processing (optional, if needed)
+#  - nltk         # Natural Language Toolkit
+#  - spacy        # Industrial-strength NLP
+#  - textblob     # Text processing
+
+  # Hyperparameter Optimization
+  - optuna       # Optimization framework
+  - hyperopt     # Hyperparameter optimization library
+
+  # Data Preprocessing
+  - category_encoders  # Encoding categorical variables
+  - imbalanced-learn   # Handling imbalanced datasets
+
+  # Utilities
+#  - tqdm        # Progress bars
+#  - joblib      # Parallel computing
+  - pyyaml      # YAML file parsing
+#  - requests    # HTTP requests (e.g., API access)
+
+  # Miscellaneous
+  - pip         # Use pip for additional packages

@@ -2,15 +2,16 @@ import pandas as pd
 import numpy as np
 #import tensorflow as tf
 import matplotlib.pyplot as plt
-#from matplotlib import pyplot as plt
+from pathlib import Path
 
 import os
 
 # Print the absolute path to verify
 # print(os.getcwd())
-# Load ../Data/summerOly_medal_counts.csv as a pandas DataFrame
-medals = pd.read_csv('./Data/summerOly_medal_counts.csv')
-athletes = pd.read_csv('./Data/summerOly_athletes.csv')
+base_dir = Path(__file__).parents[2]
+
+medals = pd.read_csv(base_dir / './Data/summerOly_medal_counts.csv')
+athletes = pd.read_csv(base_dir / './Data/summerOly_athletes.csv')
 
 def first_participating_year_for_emerging_medal_winners(athletes, year=2024):
     df_year = athletes[athletes['Year'] <= year]
