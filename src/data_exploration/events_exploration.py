@@ -6,6 +6,7 @@ from pathlib import Path
 # Read the CSV file into a pandas DataFrame with specified encoding
 base_dir = Path(__file__).parents[2]
 events = pd.read_csv(base_dir / './Data/summerOly_programs.csv', encoding='latin1')
+
 # print(events.head())
 years=events.columns.tolist()[4:]
 
