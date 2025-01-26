@@ -3,8 +3,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
 from scipy.stats import linregress
+
 base_dir = Path(__file__).parents[2]
 athletes = pd.read_csv(base_dir / './data/summerOly_athletes.csv')
+athletes = athletes[athletes['Year'] >= 1972]  # Filter out data before 1972
 
 # athletes['Team'] = athletes['Team'].str.strip()  # 去除 Team 字段中的空格
 # athletes['Year'] = athletes['Year'].astype(int)  # 确保年份为整数
@@ -12,18 +14,16 @@ athletes = pd.read_csv(base_dir / './data/summerOly_athletes.csv')
 # print(athletes.head())
 # print(athletes.columns)
 
-#错位竞争的竞争力
-#Main Task: How many emerging year winners were participating in declining sports
-#If sport is declining in strong group, then the competition is less fierce
-#If sport=declining, Team=non-emerging,add point to new metric
 
 unique_names_count_year_noc_sport = athletes.groupby(['Year', 'Team', 'Sport'])['Name'].nunique().reset_index()
 unique_names_count_year_noc_sport.columns = ['Year', 'Team', 'Sport', 'UniqueNameCount']
-print(unique_names_count_year_noc_sport.head())
+# print(unique_names_count_year_noc_sport.head(n=10))
+# print("------------------------------------------------")
 
 unique_names_count_year_sport = athletes.groupby(['Year', 'Sport'])['Name'].nunique().reset_index()
 unique_names_count_year_sport.columns = ['Year', 'Sport', 'UniqueNameCount']
-print(unique_names_count_year_sport.head())
+# print(unique_names_count_year_sport.head())
+# print("------------------------------------------------")
 
 # ## Plot the participation data
 # # plt.figure(figsize=(14, 8))
@@ -40,19 +40,22 @@ print(unique_names_count_year_sport.head())
 
 
 #Task: Find sports which are declining in participation
-recent_years = 5
-most_recent_years = unique_names_count_year_sport['Year'].unique()[-recent_years:]
-recent_data = unique_names_count_year_sport[unique_names_count_year_sport['Year'].isin(most_recent_years)]
+def find_declining_sports(year=2024):
+    recent_games = 5
+    most_recent_years = unique_names_count_year_sport['Year'].unique()[-recent_games:]
+    recent_data = unique_names_count_year_sport[unique_names_count_year_sport['Year'].isin(most_recent_years)]
 
 
-declining_sports = []
-for sport in recent_data['Sport'].unique():
-    sport_data = recent_data[recent_data['Sport'] == sport]
-    slope, _, _, _, _ = linregress(sport_data['Year'], sport_data['UniqueNameCount'])
-    if slope < 0:
-        declining_sports.append(sport)
+    declining_sports = []
+    for sport in recent_data['Sport'].unique():
+        sport_data = recent_data[recent_data['Sport'] == sport]
+        slope, _, _, _, _ = linregress(sport_data['Year'], sport_data['UniqueNameCount'])
+        if slope < 0:
+            declining_sports.append(sport)
 
-print(declining_sports)
+    return declining_sports
+
+# print(declining_sports)
 
 #Task: Find countries which are emerging winners per year from the athletes file
 # print(athletes.columns)
@@ -120,11 +123,12 @@ def first_participating_year_for_emerging_medal_winners(athletes, year=2024):
 year_ratio={"Year":[],"Ratio":[]}
 year_all_ratio={"Year":[],"Ratio":[]}
 compare_ratio={"Year":[],"Decline Ratio":[],"All Ratio":[],"Difference":[],"Ratio of Ratio":[]}
-for yr in range(2024,1972,-4):
+for yr in range(2024, 1992, -4):
     # print(f"\n\nYear: {yr}")
+    declining_sports_year = find_declining_sports(yr)
     first_medals_at_year,emerging_medal_count=first_participating_year_for_emerging_medal_winners(athletes, yr)
 
-    declining_sports_athletes = athletes[athletes['Sport'].isin(declining_sports)]
+    declining_sports_athletes = athletes[athletes['Sport'].isin(declining_sports_year)]
     declining_sports_emerging_noc_athletes = declining_sports_athletes[declining_sports_athletes['Team'].isin(first_medals_at_year)]
 
     #Task: count athletes participating in declining sports per country per year
@@ -168,7 +172,8 @@ def subset_on_year_sport(year,sport):
 
 print(subset_on_year_sport(2024, "Athletics").head())
 
-def find_list_of_declining(year):
+# Given a year, find the list of sports for which the participation is declining
+def athletes_in_declining_sports(year):
     recent_years = 5
     most_recent_years = unique_names_count_year_sport[unique_names_count_year_sport['Year']<=year]['Year'].unique()[-recent_years:]
     recent_data = unique_names_count_year_sport[unique_names_count_year_sport['Year'].isin(most_recent_years)]
@@ -189,31 +194,30 @@ def find_declining_sports_data(year):
     recent_data = unique_names_count_year_sport[unique_names_count_year_sport['Year'].isin(most_recent_years)]
 
     #list of declining sports
-    print(declining_sports)
-    
-    for s in declining_sports:
-        df0=subset_on_year_sport(year,s)
-        print(df0.head())
-        df1=subset_on_year_sport(year-4,s)
-        df2=subset_on_year_sport(year-8,s)
+    declining_sports_year = find_declining_sports(year)
+    print(declining_sports_year)
 
-        count0=df0[df0["Sport"]==s].shape[0]
-        count1=df1[df1["Sport"]==s].shape[0]
-        count2=df2[df2["Sport"]==s].shape[0]
+    for s in declining_sports_year:
+        df0 = subset_on_year_sport(year, s)
+        df1 = subset_on_year_sport(year - 4, s)
+        df2 = subset_on_year_sport(year - 8, s)
+
+        count0 = df0[df0["Sport"] == s].shape[0]
+        count1 = df1[df1["Sport"] == s].shape[0]
+        count2 = df2[df2["Sport"] == s].shape[0]
 
         res["Sport"].append(s)
         res['0Participants'].append(count0)
         res['-1Participants'].append(count1)
         res['-2Participants'].append(count2)
-    declining_sports_data=pd.DataFrame(res)
-    return declining_sports_data
+    return pd.DataFrame(res)
 
 print("---------------------------------------")
 print(find_declining_sports_data(2024))
 print("---------------------------------------")
 
-# Find country participation in declining sports
-def find_country_data(year):
+# Given country, find participation in declining sports
+def find_country_data(NOC, year):
     new_df=athletes.groupby(["Team","Sport","Year"])["Name"].nunique().reset_index()
     #country's total participants in filtered sport
     newdf1=new_df.groupby(["Team","Year"])["Name"].sum().reset_index()

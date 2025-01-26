@@ -82,26 +82,30 @@ model_gold.compile(optimizer='adam', loss='mse')
 model_total = tf.keras.models.Sequential([
     tf.keras.Input(shape=(X_train_reshaped.shape[1], X_train_reshaped.shape[2])),
     tf.keras.layers.LSTM(64, return_sequences=True),
-    tf.keras.layers.LSTM(64, return_sequences=False),
+    tf.keras.layers.LSTM(64, return_sequences=True),
     tf.keras.layers.Dense(32, activation='relu'),
     tf.keras.layers.Dense(1, activation='linear')
 ])
 
+model_total.summary()
+
+# exit()
+
 model_total.compile(optimizer='adam', loss='mse')
 
 # Train the model
-model_gold.fit(X_train_reshaped, y_train_gold_reshaped, epochs=100, batch_size=1, verbose=1)
+# model_gold.fit(X_train_reshaped, y_train_gold_reshaped, epochs=100, batch_size=1, verbose=1)
 model_total.fit(X_train_reshaped, y_train_total_reshaped, epochs=100, batch_size=1, verbose=1)
 
 # Evaluate the model
-y_test_gold_reshaped = y_test_gold.values.reshape((y_test_gold.shape[0], 1), order='F')
-y_pred_gold = model_gold.predict(X_test_reshaped)
+# y_test_gold_reshaped = y_test_gold.values.reshape((y_test_gold.shape[0], 1), order='F')
+# y_pred_gold = model_gold.predict(X_test_reshaped)
 y_test_total_reshaped = y_test_total.values.reshape((y_test_total.shape[0], 1), order='F')
 y_pred_total = model_total.predict(X_test_reshaped)
 
-print("\nGold Medals Prediction (2024 Test Data):")
-print("Mean Squared Error (MSE):", mean_squared_error(y_test_gold_reshaped, y_pred_gold))
-print("R-squared (R2):", r2_score(y_test_gold_reshaped, y_pred_gold))
+# print("\nGold Medals Prediction (2024 Test Data):")
+# print("Mean Squared Error (MSE):", mean_squared_error(y_test_gold_reshaped, y_pred_gold))
+# print("R-squared (R2):", r2_score(y_test_gold_reshaped, y_pred_gold))
 
 print("\nTotal Medals Prediction (2024 Test Data):")
 print("Mean Squared Error (MSE):", mean_squared_error(y_test_total_reshaped, y_pred_total))
