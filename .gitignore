@@ -1,2 +1,7 @@
 # ignore .idea folder
 .idea
+
+# ignore .Rhistory
+.Rhistory
+
+test.py

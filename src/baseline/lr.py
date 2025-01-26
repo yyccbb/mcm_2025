@@ -3,15 +3,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
+import src.util.dataloader as dl
 
 # 1. 加载数据
-file_path = 'olympic_data.csv'
-data = pd.read_csv(file_path)
+data = dl.train_dataset()
 
 # 2. 数据预处理
 # 筛选训练集和测试集
-train_data = data[data['Year'] < 2024]  # 2016 和 2020 数据作为训练集
-test_data = data[data['Year'] == 2024]  # 2024 数据作为测试集
+train_data = data[data['Year'] < 2024].reset_index(drop=True)  # 2016 和 2020 数据作为训练集
+test_data = data[data['Year'] == 2024].reset_index(drop=True)  # 2024 数据作为测试集
 
 # 删除包含缺失值的行
 train_data = train_data.dropna()
