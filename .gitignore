@@ -4,4 +4,10 @@
 # ignore .Rhistory
 .Rhistory
 
+# ignore .DS_Store
+.DS_Store
+
+# ignore .RData
+.RData
+
 test.py
