@@ -6,6 +6,7 @@ train_data = pd.read_csv(base_dir / './data/olympic_data.csv')
 events = pd.read_csv(base_dir / './data/summerOly_programs.csv', encoding='latin1')
 athletes = pd.read_csv(base_dir / './data/summerOly_athletes.csv')
 medals = pd.read_csv(base_dir / './data/summerOly_medal_counts.csv')
+hosts = pd.read_csv(base_dir / './data/summerOly_hosts.csv')
 
 def train_dataset():
     return train_data
@@ -18,3 +19,9 @@ def athletes_dataset():
 
 def medals_dataset():
     return medals
+
+def hosts_dataset():
+    return hosts
+
+def get_base():
+    return base_dir

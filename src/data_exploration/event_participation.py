@@ -1,11 +1,12 @@
+import warnings
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from pathlib import Path
+import src.util.dataloader as dl
 from scipy.stats import linregress
 
-base_dir = Path(__file__).parents[2]
-athletes = pd.read_csv(base_dir / './data/summerOly_athletes.csv')
+athletes = dl.athletes_dataset()
 athletes = athletes[athletes['Year'] >= 1972]  # Filter out data before 1972
 
 # athletes['Team'] = athletes['Team'].str.strip()  # 去除 Team 字段中的空格
@@ -49,7 +50,9 @@ def find_declining_sports(year=2024):
     declining_sports = []
     for sport in recent_data['Sport'].unique():
         sport_data = recent_data[recent_data['Sport'] == sport]
-        slope, _, _, _, _ = linregress(sport_data['Year'], sport_data['UniqueNameCount'])
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            slope, _, _, _, _ = linregress(sport_data['Year'], sport_data['UniqueNameCount'])
         if slope < 0:
             declining_sports.append(sport)
 
@@ -167,7 +170,7 @@ print('-------------------------------')
 print(type(athletes))
 
 def subset_on_year_sport(year,sport):
-    subset_df = athletes[(athletes["Year"]==year) & (athletes["Sport"]==sport)]
+    subset_df = athletes[(athletes["Year"] == year) & (athletes["Sport"] == sport)]
     return subset_df
 
 print(subset_on_year_sport(2024, "Athletics").head())
@@ -217,32 +220,19 @@ print(find_declining_sports_data(2024))
 print("---------------------------------------")
 
 # Given country, find participation in declining sports
-def find_country_data(NOC, year):
-    new_df=athletes.groupby(["Team","Sport","Year"])["Name"].nunique().reset_index()
-    #country's total participants in filtered sport
-    newdf1=new_df.groupby(["Team","Year"])["Name"].sum().reset_index()
-    print(newdf1)
+def participation_in_declining_sports_by_NOC(NOC, year):
+    declining_sports_year = find_declining_sports(year)
+    athletes_participating_in_declining_sports = athletes[(athletes['NOC'] == NOC) & (athletes['Year'] == year) & (athletes['Sport'].isin(declining_sports_year))]
+    return athletes_participating_in_declining_sports['Name'].nunique()
 
-find_country_data(2024)
-#     for row in subdf
+# print(participation_in_declining_sports_by_NOC("USA", 2016))
 
-
-
-
-#     return df0,df1,df2
-
-# def find_country_delta_data(year)
+# Score for year 2024 = (Number of athletes participating in declining sports for the given NOC) / (Total number of participants in declining sports)
+NOCs_2024 = athletes[athletes['Year'] == 2024]['NOC'].unique()
+declining_sports_data_2024 = find_declining_sports_data(2024)
+total_participants_2024 = declining_sports_data_2024['0Participants'].sum()
+NOC_involvement_declining_sport_scores = []
+for NOC in NOCs_2024:
+    NOC_involvement_declining_sport_scores.append({"NOC": NOC, "Score": participation_in_declining_sports_by_NOC(NOC, 2024) / total_participants_2024})
     
-
-
-    
-
-    
-
-# #group by sport country
-# def
-
-
-          
-    
-
+print(pd.DataFrame(NOC_involvement_declining_sport_scores).head(n=10))
